@@ -1,133 +1,844 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Luru Coffee</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kopi Roso — Authentic Indonesian Coffee</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cream:    '#F5EDD8',
+            latte:    '#C8A97E',
+            espresso: '#2C1A0E',
+            roast:    '#6B3D1E',
+            steam:    '#E8DCC8',
+            gold:     '#C6973F',
+          },
+          fontFamily: {
+            display: ['"Playfair Display"', 'serif'],
+            body:    ['"DM Sans"', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: #2C1A0E; font-family: 'DM Sans', sans-serif; cursor: none; overflow-x: hidden; }
 
-<script src="https://cdn.tailwindcss.com"></script>
+    /* Custom cursor */
+    #cursor { position: fixed; width: 10px; height: 10px; background: #C8A97E; border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); transition: transform .15s, opacity .15s; }
+    #cursor-ring { position: fixed; width: 36px; height: 36px; border: 1.5px solid #C8A97E55; border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: transform .35s cubic-bezier(.25,.46,.45,.94), opacity .35s; }
+    a:hover ~ #cursor, button:hover ~ #cursor { transform: translate(-50%,-50%) scale(2.5); }
 
-<script>
-tailwind.config = {
-darkMode: 'class'
-}
-</script>
+    /* Grain overlay */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 9997; opacity: .55;
+    }
 
+    /* Scroll reveal */
+    .reveal { opacity: 0; transform: translateY(48px); transition: opacity .85s cubic-bezier(.22,1,.36,1), transform .85s cubic-bezier(.22,1,.36,1); }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-left { opacity: 0; transform: translateX(-60px); transition: opacity .85s cubic-bezier(.22,1,.36,1), transform .85s cubic-bezier(.22,1,.36,1); }
+    .reveal-left.visible { opacity: 1; transform: translateX(0); }
+    .reveal-right { opacity: 0; transform: translateX(60px); transition: opacity .85s cubic-bezier(.22,1,.36,1), transform .85s cubic-bezier(.22,1,.36,1); }
+    .reveal-right.visible { opacity: 1; transform: translateX(0); }
+    .reveal-scale { opacity: 0; transform: scale(.88); transition: opacity .85s cubic-bezier(.22,1,.36,1), transform .85s cubic-bezier(.22,1,.36,1); }
+    .reveal-scale.visible { opacity: 1; transform: scale(1); }
+    .stagger-1 { transition-delay: .1s; }
+    .stagger-2 { transition-delay: .22s; }
+    .stagger-3 { transition-delay: .34s; }
+    .stagger-4 { transition-delay: .46s; }
+
+    /* Nav */
+    nav { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+
+    /* Hero parallax bg */
+    #hero-bg { will-change: transform; }
+
+    /* Bean float animation */
+    @keyframes floatBean {
+      0%,100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-18px) rotate(12deg); }
+    }
+    .bean { animation: floatBean 5s ease-in-out infinite; }
+    .bean-2 { animation-delay: 1.2s; animation-duration: 6.5s; }
+    .bean-3 { animation-delay: 2.8s; animation-duration: 4.8s; }
+
+    /* Steam animation */
+    @keyframes steam {
+      0% { transform: scaleX(1) translateY(0); opacity: .7; }
+      100% { transform: scaleX(1.5) translateY(-40px); opacity: 0; }
+    }
+    .steam-line { animation: steam 2.2s ease-out infinite; }
+    .steam-line:nth-child(2) { animation-delay: .6s; }
+    .steam-line:nth-child(3) { animation-delay: 1.2s; }
+
+    /* Marquee */
+    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .marquee-inner { animation: marquee 22s linear infinite; white-space: nowrap; }
+
+    /* Card hover */
+    .menu-card { transition: transform .4s cubic-bezier(.22,1,.36,1), box-shadow .4s; }
+    .menu-card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 32px 80px #2C1A0E88; }
+
+    /* Button shimmer */
+    .btn-shimmer { position: relative; overflow: hidden; }
+    .btn-shimmer::after { content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent); transition: left .55s ease; }
+    .btn-shimmer:hover::after { left: 150%; }
+
+    /* Section divider wave */
+    .wave-divider svg { display: block; }
+
+    /* Gold line */
+    .gold-line { width: 56px; height: 2px; background: linear-gradient(90deg, #C6973F, #F5EDD8); }
+
+    /* Gallery hover */
+    .gallery-item img { transition: transform .6s cubic-bezier(.22,1,.36,1), filter .6s; }
+    .gallery-item:hover img { transform: scale(1.07); filter: brightness(1.1) saturate(1.2); }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #2C1A0E; }
+    ::-webkit-scrollbar-thumb { background: #6B3D1E; border-radius: 3px; }
+  </style>
 </head>
+<body>
 
-<body class="bg-white text-gray-800 dark:bg-gray-900 dark:text-white transition duration-300">
+<!-- Custom cursor -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
 
-<!-- NAVBAR -->
-<nav class="flex justify-between items-center p-6 max-w-6xl mx-auto">
-
-<h1 class="text-2xl font-bold">Luru Coffee</h1>
-
-<div class="space-x-6 hidden md:block">
-<a href="#menu" class="hover:text-amber-500">Menu</a>
-<a href="#about" class="hover:text-amber-500">About</a>
-<a href="#contact" class="hover:text-amber-500">Contact</a>
-</div>
-
-<button onclick="toggleDark()" class="bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded">
-🌙
-</button>
-
+<!-- ========== NAVBAR ========== -->
+<nav class="fixed top-0 left-0 right-0 z-50 bg-espresso/80 border-b border-latte/10">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="#" class="flex items-center gap-3 group">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <ellipse cx="16" cy="22" rx="12" ry="6" fill="#C8A97E" opacity=".25"/>
+        <path d="M8 20 Q16 8 24 20" stroke="#C8A97E" stroke-width="2" fill="none"/>
+        <circle cx="16" cy="14" r="3" fill="#C6973F"/>
+        <path d="M22 6 Q24 3 26 6" stroke="#C8A97E" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      </svg>
+      <span class="font-display text-2xl text-cream tracking-wide">Kopi <span class="text-latte italic">Roso</span></span>
+    </a>
+    <!-- Desktop menu -->
+    <ul class="hidden md:flex items-center gap-8 text-steam/70 text-sm font-body font-medium tracking-wider uppercase">
+      <li><a href="#menu" class="hover:text-latte transition-colors duration-300">Menu</a></li>
+      <li><a href="#story" class="hover:text-latte transition-colors duration-300">Cerita</a></li>
+      <li><a href="#gallery" class="hover:text-latte transition-colors duration-300">Galeri</a></li>
+      <li><a href="#contact" class="hover:text-latte transition-colors duration-300">Kontak</a></li>
+    </ul>
+    <a href="#contact" class="hidden md:inline-flex btn-shimmer items-center gap-2 bg-latte text-espresso text-xs font-medium uppercase tracking-widest px-5 py-2.5 rounded-full hover:bg-gold transition-colors duration-300">
+      Kunjungi Kami
+    </a>
+    <!-- Hamburger -->
+    <button id="hamburger" class="md:hidden flex flex-col gap-1.5 p-2" aria-label="Menu">
+      <span class="w-6 h-0.5 bg-cream transition-all duration-300" id="h1"></span>
+      <span class="w-6 h-0.5 bg-cream transition-all duration-300" id="h2"></span>
+      <span class="w-4 h-0.5 bg-latte transition-all duration-300" id="h3"></span>
+    </button>
+  </div>
+  <!-- Mobile menu -->
+  <div id="mobile-menu" class="hidden md:hidden bg-espresso/95 backdrop-blur-xl border-t border-latte/10 px-6 py-6">
+    <ul class="flex flex-col gap-5 text-steam/80 font-body text-sm uppercase tracking-widest">
+      <li><a href="#menu" class="mobile-link hover:text-latte transition-colors">Menu</a></li>
+      <li><a href="#story" class="mobile-link hover:text-latte transition-colors">Cerita</a></li>
+      <li><a href="#gallery" class="mobile-link hover:text-latte transition-colors">Galeri</a></li>
+      <li><a href="#contact" class="mobile-link hover:text-latte transition-colors">Kontak</a></li>
+    </ul>
+  </div>
 </nav>
 
-<!-- HERO -->
-<section class="text-center py-24 px-6">
+<!-- ========== HERO ========== -->
+<section class="relative min-h-screen flex items-center overflow-hidden">
+  <!-- Parallax Background -->
+  <div id="hero-bg" class="absolute inset-0">
+    <!-- Radial warm glow -->
+    <div class="absolute inset-0 bg-gradient-radial" style="background: radial-gradient(ellipse 80% 80% at 60% 50%, #6B3D1E55 0%, #2C1A0E 70%);"></div>
+    <!-- Grid lines -->
+    <div class="absolute inset-0 opacity-5" style="background-image: linear-gradient(#C8A97E 1px, transparent 1px), linear-gradient(90deg, #C8A97E 1px, transparent 1px); background-size: 80px 80px;"></div>
+  </div>
 
-<h2 class="text-5xl font-bold mb-6">
-Artisan Coffee Experience
-</h2>
+  <!-- Floating beans (decorative) -->
+  <div class="absolute top-28 right-16 md:right-32 opacity-20 bean">
+    <svg width="60" height="60" viewBox="0 0 60 60" fill="#C8A97E">
+      <ellipse cx="30" cy="30" rx="22" ry="14" transform="rotate(30 30 30)"/>
+      <path d="M30 18 Q36 30 30 42" stroke="#2C1A0E" stroke-width="2" fill="none"/>
+    </svg>
+  </div>
+  <div class="absolute bottom-40 right-8 md:right-64 opacity-15 bean bean-2">
+    <svg width="40" height="40" viewBox="0 0 60 60" fill="#C6973F">
+      <ellipse cx="30" cy="30" rx="22" ry="14" transform="rotate(-20 30 30)"/>
+      <path d="M30 18 Q24 30 30 42" stroke="#2C1A0E" stroke-width="2" fill="none"/>
+    </svg>
+  </div>
+  <div class="absolute top-48 left-8 opacity-10 bean bean-3">
+    <svg width="28" height="28" viewBox="0 0 60 60" fill="#C8A97E">
+      <ellipse cx="30" cy="30" rx="22" ry="14" transform="rotate(50 30 30)"/>
+    </svg>
+  </div>
 
-<p class="max-w-xl mx-auto mb-8 text-gray-500 dark:text-gray-300">
-Enjoy premium handcrafted coffee made from the finest beans.
-Relax, sip, and experience the perfect coffee moment.
-</p>
+  <!-- Content -->
+  <div class="relative z-10 max-w-7xl mx-auto px-6 pt-28 pb-16 grid md:grid-cols-2 gap-12 items-center">
+    <div>
+      <p class="font-body text-latte text-xs uppercase tracking-[.35em] mb-6 reveal">— Sidoarjo, Jawa Timur</p>
+      <h1 class="font-display text-cream text-6xl md:text-7xl lg:text-8xl leading-[.95] mb-6 reveal stagger-1">
+        Rasa<br/><span class="italic text-latte">Otentik</span><br/>Setiap<br/>Tegukan
+      </h1>
+      <div class="gold-line mb-6 reveal stagger-2"></div>
+      <p class="font-body text-steam/60 text-base leading-relaxed max-w-sm mb-10 reveal stagger-3">
+        Diracik dari biji kopi pilihan Nusantara — Flores, Aceh, Toraja — dengan penuh cinta dan kearifan lokal.
+      </p>
+      <div class="flex flex-wrap gap-4 reveal stagger-4">
+        <a href="#menu" class="btn-shimmer inline-flex items-center gap-2 bg-latte text-espresso font-body font-medium text-sm uppercase tracking-widest px-7 py-3.5 rounded-full hover:bg-gold transition-colors duration-300">
+          Lihat Menu
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a href="#story" class="inline-flex items-center gap-2 border border-latte/40 text-latte font-body text-sm uppercase tracking-widest px-7 py-3.5 rounded-full hover:border-latte hover:text-cream transition-all duration-300">
+          Cerita Kami
+        </a>
+      </div>
+    </div>
 
-<button class="bg-amber-500 text-white px-6 py-3 rounded-lg hover:bg-amber-600 transition">
-Explore Menu
-</button>
+    <!-- Cup illustration -->
+    <div class="flex justify-center items-center reveal-scale stagger-2">
+      <div class="relative">
+        <!-- Glow behind cup -->
+        <div class="absolute inset-0 rounded-full blur-3xl" style="background: radial-gradient(circle, #C8A97E33 0%, transparent 70%); transform: scale(1.3);"></div>
+        <svg width="340" height="380" viewBox="0 0 340 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Steam lines -->
+          <g class="steam-line" transform="translate(140 10)">
+            <path d="M0 60 Q8 40 0 20 Q-8 0 0 -20" stroke="#C8A97E" stroke-width="2.5" stroke-linecap="round" fill="none" opacity=".6"/>
+          </g>
+          <g class="steam-line" transform="translate(168 0)">
+            <path d="M0 60 Q-8 40 0 20 Q8 0 0 -20" stroke="#C8A97E" stroke-width="2" stroke-linecap="round" fill="none" opacity=".5"/>
+          </g>
+          <g class="steam-line" transform="translate(196 12)">
+            <path d="M0 60 Q8 40 0 20 Q-6 0 0 -20" stroke="#C8A97E" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".4"/>
+          </g>
+          <!-- Saucer -->
+          <ellipse cx="170" cy="330" rx="100" ry="14" fill="#4A2810"/>
+          <ellipse cx="170" cy="325" rx="110" ry="18" fill="#3A200A" stroke="#C8A97E" stroke-width="1" stroke-opacity=".3"/>
+          <!-- Cup body -->
+          <path d="M100 160 Q95 290 110 310 Q130 330 170 330 Q210 330 230 310 Q245 290 240 160Z" fill="#3A200A" stroke="#C8A97E" stroke-width="1" stroke-opacity=".25"/>
+          <!-- Cup rim -->
+          <ellipse cx="170" cy="160" rx="70" ry="14" fill="#4A2810" stroke="#C8A97E" stroke-width="1" stroke-opacity=".3"/>
+          <!-- Coffee surface -->
+          <ellipse cx="170" cy="160" rx="63" ry="11" fill="#1C0D06"/>
+          <!-- Latte art -->
+          <path d="M145 158 Q170 148 195 158 Q170 168 145 158Z" fill="#C8A97E" opacity=".35"/>
+          <circle cx="170" cy="158" r="8" fill="#C8A97E" opacity=".2"/>
+          <path d="M162 155 Q170 150 178 155" stroke="#C8A97E" stroke-width="1" opacity=".5" fill="none"/>
+          <!-- Handle -->
+          <path d="M238 190 Q270 190 270 220 Q270 250 238 250" stroke="#4A2810" stroke-width="16" fill="none" stroke-linecap="round"/>
+          <path d="M238 190 Q268 190 268 220 Q268 250 238 250" stroke="#C8A97E" stroke-width="1" fill="none" stroke-opacity=".25"/>
+          <!-- Cup logo -->
+          <circle cx="160" cy="240" r="18" fill="#C8A97E" opacity=".07"/>
+          <path d="M154 244 Q160 234 166 244" stroke="#C8A97E" stroke-width="1.5" fill="none" stroke-opacity=".4" stroke-linecap="round"/>
+          <circle cx="160" cy="238" r="3" fill="#C8A97E" opacity=".3"/>
+        </svg>
+      </div>
+    </div>
+  </div>
 
+  <!-- Scroll indicator -->
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 reveal stagger-4">
+    <span class="font-body text-steam/30 text-xs uppercase tracking-widest">Scroll</span>
+    <div class="w-px h-12 bg-gradient-to-b from-latte/50 to-transparent"></div>
+  </div>
 </section>
 
-<!-- MENU -->
-<section id="menu" class="max-w-6xl mx-auto px-6 py-20">
-
-<h2 class="text-3xl font-bold mb-10 text-center">Our Menu</h2>
-
-<div class="grid md:grid-cols-3 gap-8">
-
-<div class="p-6 rounded-xl shadow bg-white dark:bg-gray-800">
-<h3 class="text-xl font-semibold mb-2">Espresso</h3>
-<p class="text-gray-500 dark:text-gray-300">
-Rich and bold espresso made from premium beans.
-</p>
+<!-- ========== MARQUEE ========== -->
+<div class="bg-latte/10 border-y border-latte/20 py-4 overflow-hidden">
+  <div class="marquee-inner inline-flex gap-12 text-latte/50 font-body text-xs uppercase tracking-[.3em]">
+    <span>Arabika Flores</span><span class="text-latte">✦</span>
+    <span>Robusta Aceh</span><span class="text-latte">✦</span>
+    <span>Toraja Sulawesi</span><span class="text-latte">✦</span>
+    <span>Kintamani Bali</span><span class="text-latte">✦</span>
+    <span>Java Preanger</span><span class="text-latte">✦</span>
+    <span>Gayo Sumatera</span><span class="text-latte">✦</span>
+    <span>Arabika Flores</span><span class="text-latte">✦</span>
+    <span>Robusta Aceh</span><span class="text-latte">✦</span>
+    <span>Toraja Sulawesi</span><span class="text-latte">✦</span>
+    <span>Kintamani Bali</span><span class="text-latte">✦</span>
+    <span>Java Preanger</span><span class="text-latte">✦</span>
+    <span>Gayo Sumatera</span><span class="text-latte">✦</span>
+  </div>
 </div>
 
-<div class="p-6 rounded-xl shadow bg-white dark:bg-gray-800">
-<h3 class="text-xl font-semibold mb-2">Cappuccino</h3>
-<p class="text-gray-500 dark:text-gray-300">
-Smooth espresso with steamed milk and creamy foam.
-</p>
-</div>
+<!-- ========== MENU ========== -->
+<section id="menu" class="py-28 bg-espresso relative overflow-hidden">
+  <!-- Bg texture -->
+  <div class="absolute inset-0 opacity-5" style="background: radial-gradient(circle at 20% 50%, #C8A97E 0%, transparent 50%), radial-gradient(circle at 80% 20%, #6B3D1E 0%, transparent 50%);"></div>
 
-<div class="p-6 rounded-xl shadow bg-white dark:bg-gray-800">
-<h3 class="text-xl font-semibold mb-2">Latte</h3>
-<p class="text-gray-500 dark:text-gray-300">
-Silky milk combined with rich espresso flavor.
-</p>
-</div>
+  <div class="max-w-7xl mx-auto px-6 relative z-10">
+    <div class="mb-16 reveal">
+      <p class="font-body text-latte text-xs uppercase tracking-[.35em] mb-3">— Pilihan Kami</p>
+      <h2 class="font-display text-cream text-5xl md:text-6xl">Menu <span class="italic text-latte">Unggulan</span></h2>
+      <div class="gold-line mt-4"></div>
+    </div>
 
-</div>
+    <!-- Category tabs -->
+    <div class="flex gap-3 flex-wrap mb-12 reveal stagger-1">
+      <button onclick="filterMenu('semua')" class="tab-btn active-tab font-body text-xs uppercase tracking-widest px-5 py-2 rounded-full border border-latte/30 text-cream transition-all duration-300" data-cat="semua">Semua</button>
+      <button onclick="filterMenu('espresso')" class="tab-btn font-body text-xs uppercase tracking-widest px-5 py-2 rounded-full border border-latte/20 text-steam/50 transition-all duration-300 hover:border-latte/40 hover:text-steam/80" data-cat="espresso">Espresso</button>
+      <button onclick="filterMenu('manual')" class="tab-btn font-body text-xs uppercase tracking-widest px-5 py-2 rounded-full border border-latte/20 text-steam/50 transition-all duration-300 hover:border-latte/40 hover:text-steam/80" data-cat="manual">Manual Brew</button>
+      <button onclick="filterMenu('non')" class="tab-btn font-body text-xs uppercase tracking-widest px-5 py-2 rounded-full border border-latte/20 text-steam/50 transition-all duration-300 hover:border-latte/40 hover:text-steam/80" data-cat="non">Non-Coffee</button>
+    </div>
 
+    <!-- Menu grid -->
+    <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <!-- Card 1 -->
+      <div class="menu-card reveal stagger-1 bg-roast/30 border border-latte/10 rounded-2xl overflow-hidden" data-cat="espresso">
+        <div class="h-52 relative overflow-hidden">
+          <div class="absolute inset-0 flex items-center justify-center" style="background: radial-gradient(circle at 50% 60%, #6B3D1E 0%, #2C1A0E 100%);">
+            <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+              <ellipse cx="60" cy="95" rx="45" ry="8" fill="#C8A97E" opacity=".12"/>
+              <rect x="30" y="40" width="60" height="55" rx="8" fill="#3A200A" stroke="#C8A97E" stroke-width=".8" stroke-opacity=".3"/>
+              <ellipse cx="60" cy="40" rx="30" ry="6" fill="#4A2810"/>
+              <ellipse cx="60" cy="40" rx="26" ry="4.5" fill="#1C0D06"/>
+              <path d="M85 55 Q100 55 100 68 Q100 82 85 82" stroke="#4A2810" stroke-width="8" fill="none" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="absolute top-3 right-3 bg-latte/20 backdrop-blur-sm text-latte text-xs font-body uppercase tracking-wider px-3 py-1 rounded-full border border-latte/20">Espresso</div>
+        </div>
+        <div class="p-6">
+          <h3 class="font-display text-cream text-2xl mb-2">Americano</h3>
+          <p class="font-body text-steam/50 text-sm leading-relaxed mb-4">Espresso tubruk dengan air panas — hitam, tegas, penuh karakter.</p>
+          <div class="flex items-center justify-between">
+            <span class="font-display text-latte text-xl">Rp 28.000</span>
+            <button class="w-9 h-9 rounded-full bg-latte/10 border border-latte/30 flex items-center justify-center hover:bg-latte hover:text-espresso text-latte transition-all duration-300">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="menu-card reveal stagger-2 bg-roast/30 border border-latte/10 rounded-2xl overflow-hidden" data-cat="espresso">
+        <div class="h-52 relative overflow-hidden">
+          <div class="absolute inset-0 flex items-center justify-center" style="background: radial-gradient(circle at 50% 40%, #8B5E3C 0%, #2C1A0E 100%);">
+            <svg width="110" height="120" viewBox="0 0 120 120" fill="none">
+              <ellipse cx="60" cy="95" rx="48" ry="9" fill="#C8A97E" opacity=".1"/>
+              <path d="M25 45 Q23 85 28 95 Q40 105 60 105 Q80 105 92 95 Q97 85 95 45Z" fill="#3A200A" stroke="#C8A97E" stroke-width=".8" stroke-opacity=".25"/>
+              <ellipse cx="60" cy="45" rx="35" ry="8" fill="#4A2810"/>
+              <ellipse cx="60" cy="45" rx="30" ry="6" fill="#2C1608"/>
+              <ellipse cx="60" cy="43" rx="26" ry="5" fill="#C8A97E" opacity=".2"/>
+              <path d="M48 41 Q60 36 72 41" stroke="#C8A97E" stroke-width="1.2" opacity=".5" fill="none"/>
+            </svg>
+          </div>
+          <div class="absolute top-3 right-3 bg-gold/20 backdrop-blur-sm text-gold text-xs font-body uppercase tracking-wider px-3 py-1 rounded-full border border-gold/30">Favorit</div>
+        </div>
+        <div class="p-6">
+          <h3 class="font-display text-cream text-2xl mb-2">Latte Susu Segar</h3>
+          <p class="font-body text-steam/50 text-sm leading-relaxed mb-4">Espresso double-shot, susu segar lokal, art cantik di atasnya.</p>
+          <div class="flex items-center justify-between">
+            <span class="font-display text-latte text-xl">Rp 38.000</span>
+            <button class="w-9 h-9 rounded-full bg-latte/10 border border-latte/30 flex items-center justify-center hover:bg-latte hover:text-espresso text-latte transition-all duration-300">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="menu-card reveal stagger-3 bg-roast/30 border border-latte/10 rounded-2xl overflow-hidden" data-cat="manual">
+        <div class="h-52 relative overflow-hidden">
+          <div class="absolute inset-0 flex items-center justify-center" style="background: radial-gradient(circle at 50% 60%, #3A200A 0%, #1C0D06 100%);">
+            <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+              <rect x="45" y="20" width="30" height="40" rx="4" fill="#3A200A" stroke="#C8A97E" stroke-width=".8" stroke-opacity=".4"/>
+              <path d="M60 60 L60 90" stroke="#C8A97E" stroke-width="1.5" stroke-dasharray="3 3" opacity=".4"/>
+              <ellipse cx="60" cy="92" rx="22" ry="5" fill="#3A200A" stroke="#C8A97E" stroke-width=".8" stroke-opacity=".3"/>
+              <path d="M42 92 Q40 100 38 105 Q50 110 72 110 Q82 100 78 92Z" fill="#2C1608" stroke="#C8A97E" stroke-width=".8" stroke-opacity=".2"/>
+              <path d="M48 24 Q60 18 72 24" stroke="#C8A97E" stroke-width="1" opacity=".4" fill="none"/>
+              <rect x="55" y="28" width="10" height="28" rx="2" fill="#C8A97E" opacity=".1"/>
+            </svg>
+          </div>
+          <div class="absolute top-3 right-3 bg-latte/20 backdrop-blur-sm text-latte text-xs font-body uppercase tracking-wider px-3 py-1 rounded-full border border-latte/20">Manual Brew</div>
+        </div>
+        <div class="p-6">
+          <h3 class="font-display text-cream text-2xl mb-2">V60 Pour Over</h3>
+          <p class="font-body text-steam/50 text-sm leading-relaxed mb-4">Arabika Flores diseduh manual — setiap tetes penuh cita rasa buah.</p>
+          <div class="flex items-center justify-between">
+            <span class="font-display text-latte text-xl">Rp 42.000</span>
+            <button class="w-9 h-9 rounded-full bg-latte/10 border border-latte/30 flex items-center justify-center hover:bg-latte hover:text-espresso text-latte transition-all duration-300">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="menu-card reveal stagger-1 bg-roast/30 border border-latte/10 rounded-2xl overflow-hidden" data-cat="espresso">
+        <div class="h-52 relative overflow-hidden">
+          <div class="absolute inset-0 flex items-center justify-center" style="background: radial-gradient(circle at 40% 50%, #5C2E0A 0%, #1C0D06 100%);">
+            <svg width="100" height="120" viewBox="0 0 120 120" fill="none">
+              <rect x="35" y="50" width="50" height="55" rx="5" fill="#2C1608" stroke="#C8A97E" stroke-width=".8" stroke-opacity=".2"/>
+              <ellipse cx="60" cy="50" rx="25" ry="5" fill="#3A200A"/>
+              <path d="M48 48 Q60 43 72 48" stroke="#C8A97E" stroke-width="1" opacity=".4" fill="none"/>
+              <rect x="60" y="35" width="1.5" height="18" fill="#C8A97E" opacity=".4"/>
+              <path d="M48 68 Q60 60 72 68 Q60 76 48 68Z" fill="#C8A97E" opacity=".15"/>
+              <path d="M85 62 Q100 62 100 72 Q100 82 85 82" stroke="#3A200A" stroke-width="7" fill="none" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="absolute top-3 right-3 bg-latte/20 backdrop-blur-sm text-latte text-xs font-body uppercase tracking-wider px-3 py-1 rounded-full border border-latte/20">Espresso</div>
+        </div>
+        <div class="p-6">
+          <h3 class="font-display text-cream text-2xl mb-2">Cappuccino</h3>
+          <p class="font-body text-steam/50 text-sm leading-relaxed mb-4">Busa susu lembut bertemu espresso kuat — harmoni sempurna.</p>
+          <div class="flex items-center justify-between">
+            <span class="font-display text-latte text-xl">Rp 35.000</span>
+            <button class="w-9 h-9 rounded-full bg-latte/10 border border-latte/30 flex items-center justify-center hover:bg-latte hover:text-espresso text-latte transition-all duration-300">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="menu-card reveal stagger-2 bg-roast/30 border border-latte/10 rounded-2xl overflow-hidden" data-cat="manual">
+        <div class="h-52 relative overflow-hidden">
+          <div class="absolute inset-0 flex items-center justify-center" style="background: radial-gradient(circle at 60% 40%, #4A3020 0%, #1C0D06 100%);">
+            <svg width="110" height="120" viewBox="0 0 120 120" fill="none">
+              <ellipse cx="60" cy="100" rx="40" ry="8" fill="#C8A97E" opacity=".08"/>
+              <path d="M35 45 Q33 85 38 96 Q48 105 60 105 Q72 105 82 96 Q87 85 85 45Z" fill="#2C1608" stroke="#C8A97E" stroke-width=".8" stroke-opacity=".2"/>
+              <ellipse cx="60" cy="45" rx="25" ry="5.5" fill="#3A200A"/>
+              <path d="M60 20 Q68 30 60 40 Q52 30 60 20Z" fill="#3A200A" stroke="#C8A97E" stroke-width=".8" stroke-opacity=".4"/>
+              <path d="M52 44 Q60 39 68 44" stroke="#C8A97E" stroke-width="1" opacity=".45" fill="none"/>
+              <rect x="55" y="25" width="10" height="20" rx="2" fill="#C8A97E" opacity=".06"/>
+              <ellipse cx="60" cy="70" rx="18" ry="15" fill="#C8A97E" opacity=".05"/>
+            </svg>
+          </div>
+          <div class="absolute top-3 right-3 bg-latte/20 backdrop-blur-sm text-latte text-xs font-body uppercase tracking-wider px-3 py-1 rounded-full border border-latte/20">Manual Brew</div>
+        </div>
+        <div class="p-6">
+          <h3 class="font-display text-cream text-2xl mb-2">Chemex Toraja</h3>
+          <p class="font-body text-steam/50 text-sm leading-relaxed mb-4">Toraja Sulawesi diseduh chemex — clean, bright, chocolatey finish.</p>
+          <div class="flex items-center justify-between">
+            <span class="font-display text-latte text-xl">Rp 45.000</span>
+            <button class="w-9 h-9 rounded-full bg-latte/10 border border-latte/30 flex items-center justify-center hover:bg-latte hover:text-espresso text-latte transition-all duration-300">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="menu-card reveal stagger-3 bg-roast/30 border border-latte/10 rounded-2xl overflow-hidden" data-cat="non">
+        <div class="h-52 relative overflow-hidden">
+          <div class="absolute inset-0 flex items-center justify-center" style="background: radial-gradient(circle at 50% 50%, #1A3020 0%, #0D1A10 100%);">
+            <svg width="110" height="120" viewBox="0 0 120 120" fill="none">
+              <ellipse cx="60" cy="100" rx="38" ry="7" fill="#4CAF50" opacity=".08"/>
+              <path d="M30 42 Q28 88 34 96 Q46 108 60 108 Q74 108 86 96 Q92 88 90 42Z" fill="#1A3020" stroke="#4CAF50" stroke-width=".8" stroke-opacity=".25"/>
+              <ellipse cx="60" cy="42" rx="30" ry="6.5" fill="#2A4530"/>
+              <ellipse cx="60" cy="40" rx="26" ry="5" fill="#3A7A45" opacity=".4"/>
+              <path d="M48 40 Q60 35 72 40" stroke="#8BC34A" stroke-width="1" opacity=".5" fill="none"/>
+              <path d="M60 20 Q64 26 68 22 Q72 18 68 14 Q64 10 60 14 Q56 18 60 20Z" fill="#4CAF50" opacity=".4"/>
+            </svg>
+          </div>
+          <div class="absolute top-3 right-3 bg-green-500/20 backdrop-blur-sm text-green-400 text-xs font-body uppercase tracking-wider px-3 py-1 rounded-full border border-green-500/25">Non-Coffee</div>
+        </div>
+        <div class="p-6">
+          <h3 class="font-display text-cream text-2xl mb-2">Matcha Latte</h3>
+          <p class="font-body text-steam/50 text-sm leading-relaxed mb-4">Matcha grade premium Jepang, susu oat segar — creamy dan earthy.</p>
+          <div class="flex items-center justify-between">
+            <span class="font-display text-latte text-xl">Rp 40.000</span>
+            <button class="w-9 h-9 rounded-full bg-latte/10 border border-latte/30 flex items-center justify-center hover:bg-latte hover:text-espresso text-latte transition-all duration-300">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </section>
 
-<!-- ABOUT -->
-<section id="about" class="bg-gray-100 dark:bg-gray-800 py-20 px-6">
-
-<div class="max-w-4xl mx-auto text-center">
-
-<h2 class="text-3xl font-bold mb-6">About Luru Coffee</h2>
-
-<p class="text-gray-600 dark:text-gray-300">
-Luru Coffee is a modern coffee shop dedicated to serving high-quality
-coffee and creating a comfortable place for people to connect,
-work, and relax.
-</p>
-
+<!-- ========== STATS ========== -->
+<div class="bg-roast/20 border-y border-latte/10 py-16">
+  <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
+    <div class="text-center reveal stagger-1">
+      <p class="font-display text-latte text-5xl mb-2">12</p>
+      <p class="font-body text-steam/50 text-xs uppercase tracking-widest">Tahun Berdiri</p>
+    </div>
+    <div class="text-center reveal stagger-2">
+      <p class="font-display text-latte text-5xl mb-2">7+</p>
+      <p class="font-body text-steam/50 text-xs uppercase tracking-widest">Origin Kopi</p>
+    </div>
+    <div class="text-center reveal stagger-3">
+      <p class="font-display text-latte text-5xl mb-2">4.9</p>
+      <p class="font-body text-steam/50 text-xs uppercase tracking-widest">Rating Google</p>
+    </div>
+    <div class="text-center reveal stagger-4">
+      <p class="font-display text-latte text-5xl mb-2">500+</p>
+      <p class="font-body text-steam/50 text-xs uppercase tracking-widest">Pelanggan Setia</p>
+    </div>
+  </div>
 </div>
 
+<!-- ========== STORY ========== -->
+<section id="story" class="py-28 bg-espresso relative overflow-hidden">
+  <div class="absolute right-0 top-0 w-1/2 h-full opacity-5" style="background: radial-gradient(ellipse at right, #C8A97E, transparent 70%);"></div>
+  <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center relative z-10">
+    <!-- Left -->
+    <div>
+      <p class="font-body text-latte text-xs uppercase tracking-[.35em] mb-4 reveal-left">— Cerita Kami</p>
+      <h2 class="font-display text-cream text-5xl md:text-6xl leading-tight mb-6 reveal-left stagger-1">
+        Dari Kebun<br/>ke <span class="italic text-latte">Cangkirmu</span>
+      </h2>
+      <div class="gold-line mb-8 reveal-left stagger-2"></div>
+      <p class="font-body text-steam/60 leading-relaxed mb-5 reveal-left stagger-2">
+        Kopi Roso lahir dari kecintaan mendalam terhadap kekayaan kopi Nusantara. Kami percaya setiap biji kopi menyimpan cerita — tentang tanah, petani, dan proses yang penuh perhatian.
+      </p>
+      <p class="font-body text-steam/50 leading-relaxed mb-8 reveal-left stagger-3">
+        Bekerja sama langsung dengan petani lokal di Flores, Aceh, dan Toraja, kami memastikan setiap cangkir yang kamu nikmati membawa dampak positif bagi komunitas penghasil kopi.
+      </p>
+      <div class="flex flex-col gap-4 reveal-left stagger-4">
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 rounded-full bg-latte/10 border border-latte/20 flex items-center justify-center flex-shrink-0">
+            <svg width="18" height="18" fill="none" stroke="#C8A97E" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <span class="font-body text-steam/70 text-sm">Single Origin, Direct Trade dari petani lokal</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 rounded-full bg-latte/10 border border-latte/20 flex items-center justify-center flex-shrink-0">
+            <svg width="18" height="18" fill="none" stroke="#C8A97E" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <span class="font-body text-steam/70 text-sm">Roasting segar setiap hari di dapur kami</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 rounded-full bg-latte/10 border border-latte/20 flex items-center justify-center flex-shrink-0">
+            <svg width="18" height="18" fill="none" stroke="#C8A97E" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <span class="font-body text-steam/70 text-sm">Barista tersertifikasi SCA internasional</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Process steps -->
+    <div class="space-y-6 reveal-right stagger-2">
+      <div class="process-step flex gap-5 p-5 rounded-2xl bg-roast/20 border border-latte/10 hover:border-latte/25 transition-all duration-500 hover:bg-roast/30">
+        <div class="text-3xl font-display text-latte/30 leading-none">01</div>
+        <div>
+          <h4 class="font-display text-cream text-lg mb-1">Panen Selektif</h4>
+          <p class="font-body text-steam/50 text-sm leading-relaxed">Hanya cherry merah matang yang dipetik tangan oleh petani mitra kami.</p>
+        </div>
+      </div>
+      <div class="process-step flex gap-5 p-5 rounded-2xl bg-roast/20 border border-latte/10 hover:border-latte/25 transition-all duration-500 hover:bg-roast/30">
+        <div class="text-3xl font-display text-latte/30 leading-none">02</div>
+        <div>
+          <h4 class="font-display text-cream text-lg mb-1">Proses & Roasting</h4>
+          <p class="font-body text-steam/50 text-sm leading-relaxed">Biji kopi diproses dan di-roast secara presisi untuk profil rasa terbaik.</p>
+        </div>
+      </div>
+      <div class="process-step flex gap-5 p-5 rounded-2xl bg-roast/20 border border-latte/10 hover:border-latte/25 transition-all duration-500 hover:bg-roast/30">
+        <div class="text-3xl font-display text-latte/30 leading-none">03</div>
+        <div>
+          <h4 class="font-display text-cream text-lg mb-1">Sajian Sempurna</h4>
+          <p class="font-body text-steam/50 text-sm leading-relaxed">Barista kami menyeduh dengan teknik terbaik langsung ke cangkirmu.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- CONTACT -->
-<section id="contact" class="py-20 px-6">
+<!-- ========== GALLERY ========== -->
+<section id="gallery" class="py-28 bg-roast/10 relative overflow-hidden">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="mb-12 reveal">
+      <p class="font-body text-latte text-xs uppercase tracking-[.35em] mb-3">— Suasana Kami</p>
+      <h2 class="font-display text-cream text-5xl md:text-6xl">Galeri <span class="italic text-latte">Tempat</span></h2>
+      <div class="gold-line mt-4"></div>
+    </div>
 
-<div class="max-w-4xl mx-auto text-center">
-
-<h2 class="text-3xl font-bold mb-6">Contact Us</h2>
-
-<p>Email: lurucafe@email.com</p>
-<p>Instagram: @lurucafe</p>
-<p>Location: Balikpapan</p>
-
-</div>
-
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+      <!-- Gallery items with SVG art backgrounds -->
+      <div class="gallery-item col-span-2 md:col-span-1 row-span-2 rounded-2xl overflow-hidden h-64 md:h-auto reveal stagger-1">
+        <div class="w-full h-full min-h-64" style="background: radial-gradient(ellipse at 50% 30%, #6B3D1E 0%, #2C1A0E 100%); display:flex; align-items:center; justify-content:center;">
+          <svg width="180" height="220" viewBox="0 0 200 240" fill="none" opacity=".6">
+            <rect x="40" y="40" width="120" height="160" rx="8" fill="#3A200A" stroke="#C8A97E" stroke-width=".8" stroke-opacity=".4"/>
+            <rect x="55" y="55" width="40" height="60" rx="4" fill="#C8A97E" opacity=".08"/>
+            <rect x="105" y="55" width="40" height="28" rx="4" fill="#C8A97E" opacity=".05"/>
+            <rect x="105" y="90" width="40" height="25" rx="4" fill="#C8A97E" opacity=".05"/>
+            <ellipse cx="100" cy="185" rx="40" ry="8" fill="#C8A97E" opacity=".1"/>
+            <path d="M80 185 Q100 160 120 185" stroke="#C8A97E" stroke-width="1.5" fill="none" opacity=".4"/>
+          </svg>
+        </div>
+      </div>
+      <div class="gallery-item rounded-2xl overflow-hidden h-44 reveal stagger-2">
+        <div class="w-full h-full" style="background: radial-gradient(ellipse at 30% 50%, #8B5E3C 0%, #1C0D06 100%); display:flex; align-items:center; justify-content:center;">
+          <svg width="120" height="100" viewBox="0 0 140 120" fill="none" opacity=".5">
+            <circle cx="70" cy="60" r="40" fill="#3A200A" stroke="#C8A97E" stroke-width=".8" stroke-opacity=".4"/>
+            <circle cx="70" cy="60" r="30" fill="#1C0D06"/>
+            <path d="M55 58 Q70 48 85 58 Q70 68 55 58Z" fill="#C8A97E" opacity=".3"/>
+            <circle cx="70" cy="58" r="5" fill="#C6973F" opacity=".5"/>
+          </svg>
+        </div>
+      </div>
+      <div class="gallery-item rounded-2xl overflow-hidden h-44 reveal stagger-3">
+        <div class="w-full h-full" style="background: linear-gradient(135deg, #2C1A0E, #4A2810); display:flex; align-items:center; justify-content:center;">
+          <svg width="110" height="100" viewBox="0 0 140 120" fill="none" opacity=".5">
+            <rect x="20" y="20" width="100" height="80" rx="6" fill="#3A200A" stroke="#C8A97E" stroke-width=".8" stroke-opacity=".3"/>
+            <rect x="35" y="35" width="30" height="50" rx="4" fill="#C8A97E" opacity=".07"/>
+            <rect x="75" y="35" width="30" height="22" rx="3" fill="#C8A97E" opacity=".07"/>
+            <rect x="75" y="63" width="30" height="22" rx="3" fill="#C8A97E" opacity=".07"/>
+          </svg>
+        </div>
+      </div>
+      <div class="gallery-item rounded-2xl overflow-hidden h-44 reveal stagger-2">
+        <div class="w-full h-full" style="background: radial-gradient(ellipse at 70% 30%, #5C2E0A 0%, #1C0D06 100%); display:flex; align-items:center; justify-content:center;">
+          <svg width="120" height="100" viewBox="0 0 140 120" fill="none" opacity=".5">
+            <ellipse cx="70" cy="85" rx="50" ry="10" fill="#C8A97E" opacity=".1"/>
+            <path d="M30 40 Q28 78 34 85 Q50 95 70 95 Q90 95 106 85 Q112 78 110 40Z" fill="#3A200A" stroke="#C8A97E" stroke-width=".8" stroke-opacity=".3"/>
+            <ellipse cx="70" cy="40" rx="40" ry="8" fill="#4A2810"/>
+            <path d="M55 38 Q70 33 85 38" stroke="#C8A97E" stroke-width="1" opacity=".45" fill="none"/>
+          </svg>
+        </div>
+      </div>
+      <div class="gallery-item rounded-2xl overflow-hidden h-44 reveal stagger-3">
+        <div class="w-full h-full" style="background: linear-gradient(160deg, #1A2C1A, #0D1A0D); display:flex; align-items:center; justify-content:center;">
+          <svg width="110" height="100" viewBox="0 0 140 120" fill="none" opacity=".5">
+            <path d="M50 100 L70 20 L90 100Z" fill="#4CAF50" opacity=".12" stroke="#4CAF50" stroke-width=".8" stroke-opacity=".4"/>
+            <circle cx="70" cy="62" r="22" fill="#1A3020" stroke="#8BC34A" stroke-width=".8" stroke-opacity=".35"/>
+            <path d="M60 60 Q70 55 80 60" stroke="#8BC34A" stroke-width="1" opacity=".5" fill="none"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- FOOTER -->
-<footer class="text-center py-6 border-t dark:border-gray-700">
-<p>© 2026 Luru Coffee</p>
+<!-- ========== TESTIMONIALS ========== -->
+<section class="py-28 bg-espresso relative overflow-hidden">
+  <div class="absolute inset-0 opacity-5" style="background: radial-gradient(circle at 50% 100%, #C8A97E, transparent 60%);"></div>
+  <div class="max-w-7xl mx-auto px-6 relative z-10">
+    <div class="text-center mb-16 reveal">
+      <p class="font-body text-latte text-xs uppercase tracking-[.35em] mb-3">— Kata Mereka</p>
+      <h2 class="font-display text-cream text-5xl md:text-6xl">Ulasan <span class="italic text-latte">Pelanggan</span></h2>
+      <div class="gold-line mx-auto mt-4"></div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="p-8 rounded-2xl bg-roast/20 border border-latte/10 reveal-scale stagger-1">
+        <div class="flex gap-1 mb-5">
+          <span class="text-gold text-sm">★★★★★</span>
+        </div>
+        <p class="font-body text-steam/70 leading-relaxed text-sm mb-6 italic">"Kopi terbaik yang pernah aku minum di Sidoarjo. V60 Flores-nya luar biasa, ada hint buah tropis yang bikin ketagihan."</p>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-latte/20 flex items-center justify-center text-latte font-display text-lg">R</div>
+          <div>
+            <p class="font-body text-cream text-sm font-medium">Rizky A.</p>
+            <p class="font-body text-steam/40 text-xs">Coffee Enthusiast</p>
+          </div>
+        </div>
+      </div>
+      <div class="p-8 rounded-2xl bg-roast/20 border border-latte/10 reveal-scale stagger-2">
+        <div class="flex gap-1 mb-5">
+          <span class="text-gold text-sm">★★★★★</span>
+        </div>
+        <p class="font-body text-steam/70 leading-relaxed text-sm mb-6 italic">"Tempatnya nyaman banget buat kerja. Wifi kencang, latte-nya enak, barista-nya ramah. Jadi langganan tetap!"</p>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-latte/20 flex items-center justify-center text-latte font-display text-lg">S</div>
+          <div>
+            <p class="font-body text-cream text-sm font-medium">Sari W.</p>
+            <p class="font-body text-steam/40 text-xs">Remote Worker</p>
+          </div>
+        </div>
+      </div>
+      <div class="p-8 rounded-2xl bg-roast/20 border border-latte/10 reveal-scale stagger-3">
+        <div class="flex gap-1 mb-5">
+          <span class="text-gold text-sm">★★★★★</span>
+        </div>
+        <p class="font-body text-steam/70 leading-relaxed text-sm mb-6 italic">"Sebagai pecinta kopi Toraja, Chemex Toraja di sini benar-benar autentik. Terasa perbedaannya dibanding kafe biasa."</p>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-latte/20 flex items-center justify-center text-latte font-display text-lg">B</div>
+          <div>
+            <p class="font-body text-cream text-sm font-medium">Bagas M.</p>
+            <p class="font-body text-steam/40 text-xs">Kopi Tradisional</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== CONTACT ========== -->
+<section id="contact" class="py-28 bg-roast/10 relative overflow-hidden">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="grid md:grid-cols-2 gap-16 items-center">
+      <div>
+        <p class="font-body text-latte text-xs uppercase tracking-[.35em] mb-4 reveal-left">— Temukan Kami</p>
+        <h2 class="font-display text-cream text-5xl md:text-6xl leading-tight mb-6 reveal-left stagger-1">
+          Mampir &<br/><span class="italic text-latte">Ngopi</span><br/>Bersama
+        </h2>
+        <div class="gold-line mb-8 reveal-left stagger-2"></div>
+
+        <div class="space-y-5 reveal-left stagger-3">
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-full bg-latte/10 border border-latte/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <svg width="16" height="16" fill="none" stroke="#C8A97E" stroke-width="2" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </div>
+            <div>
+              <p class="font-body text-cream text-sm font-medium mb-0.5">Alamat</p>
+              <p class="font-body text-steam/50 text-sm">Jl. Raya Kopi No. 17, Sidoarjo<br/>Jawa Timur 61219</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-full bg-latte/10 border border-latte/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <svg width="16" height="16" fill="none" stroke="#C8A97E" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div>
+              <p class="font-body text-cream text-sm font-medium mb-0.5">Jam Operasional</p>
+              <p class="font-body text-steam/50 text-sm">Senin – Jumat: 07.00 – 22.00<br/>Sabtu – Minggu: 08.00 – 23.00</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-full bg-latte/10 border border-latte/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <svg width="16" height="16" fill="none" stroke="#C8A97E" stroke-width="2" viewBox="0 0 24 24"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+            </div>
+            <div>
+              <p class="font-body text-cream text-sm font-medium mb-0.5">Kontak</p>
+              <p class="font-body text-steam/50 text-sm">+62 812-3456-7890<br/>kopiroso@gmail.com</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-3 mt-8 reveal-left stagger-4">
+          <a href="#" class="w-10 h-10 rounded-full bg-latte/10 border border-latte/20 flex items-center justify-center text-latte hover:bg-latte hover:text-espresso transition-all duration-300">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          </a>
+          <a href="#" class="w-10 h-10 rounded-full bg-latte/10 border border-latte/20 flex items-center justify-center text-latte hover:bg-latte hover:text-espresso transition-all duration-300">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+          </a>
+          <a href="#" class="w-10 h-10 rounded-full bg-latte/10 border border-latte/20 flex items-center justify-center text-latte hover:bg-latte hover:text-espresso transition-all duration-300">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Contact form -->
+      <div class="reveal-right stagger-2">
+        <div class="bg-roast/20 border border-latte/10 rounded-2xl p-8">
+          <h3 class="font-display text-cream text-2xl mb-6">Kirim Pesan</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="font-body text-steam/50 text-xs uppercase tracking-wider block mb-2">Nama</label>
+              <input type="text" placeholder="Nama kamu" class="w-full bg-espresso/80 border border-latte/20 rounded-xl px-4 py-3 text-cream font-body text-sm placeholder-steam/30 focus:outline-none focus:border-latte/50 transition-colors duration-300"/>
+            </div>
+            <div>
+              <label class="font-body text-steam/50 text-xs uppercase tracking-wider block mb-2">Email</label>
+              <input type="email" placeholder="email@kamu.com" class="w-full bg-espresso/80 border border-latte/20 rounded-xl px-4 py-3 text-cream font-body text-sm placeholder-steam/30 focus:outline-none focus:border-latte/50 transition-colors duration-300"/>
+            </div>
+            <div>
+              <label class="font-body text-steam/50 text-xs uppercase tracking-wider block mb-2">Pesan</label>
+              <textarea rows="4" placeholder="Pesan atau reservasi..." class="w-full bg-espresso/80 border border-latte/20 rounded-xl px-4 py-3 text-cream font-body text-sm placeholder-steam/30 focus:outline-none focus:border-latte/50 transition-colors duration-300 resize-none"></textarea>
+            </div>
+            <button class="btn-shimmer w-full bg-latte text-espresso font-body font-medium text-sm uppercase tracking-widest py-3.5 rounded-xl hover:bg-gold transition-colors duration-300">
+              Kirim Pesan
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== FOOTER ========== -->
+<footer class="bg-espresso border-t border-latte/10 py-12">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+      <div class="flex items-center gap-3">
+        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+          <ellipse cx="16" cy="22" rx="12" ry="6" fill="#C8A97E" opacity=".25"/>
+          <path d="M8 20 Q16 8 24 20" stroke="#C8A97E" stroke-width="2" fill="none"/>
+          <circle cx="16" cy="14" r="3" fill="#C6973F"/>
+        </svg>
+        <span class="font-display text-xl text-cream">Kopi <span class="italic text-latte">Roso</span></span>
+      </div>
+      <p class="font-body text-steam/30 text-xs text-center">© 2025 Kopi Roso. Dibuat dengan ❤ di Sidoarjo, Jawa Timur.</p>
+      <div class="flex gap-6 font-body text-xs uppercase tracking-widest text-steam/40">
+        <a href="#menu" class="hover:text-latte transition-colors">Menu</a>
+        <a href="#story" class="hover:text-latte transition-colors">Cerita</a>
+        <a href="#contact" class="hover:text-latte transition-colors">Kontak</a>
+      </div>
+    </div>
+  </div>
 </footer>
 
 <script>
+  // ---- Custom Cursor ----
+  const cursor = document.getElementById('cursor');
+  const ring   = document.getElementById('cursor-ring');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cursor.style.left = mx+'px'; cursor.style.top = my+'px'; });
+  function animRing() { rx += (mx - rx) * .12; ry += (my - ry) * .12; ring.style.left = rx+'px'; ring.style.top = ry+'px'; requestAnimationFrame(animRing); }
+  animRing();
+  document.querySelectorAll('a,button,input,textarea').forEach(el => {
+    el.addEventListener('mouseenter', () => { cursor.style.transform = 'translate(-50%,-50%) scale(2)'; ring.style.transform = 'translate(-50%,-50%) scale(1.4)'; ring.style.opacity = '.4'; });
+    el.addEventListener('mouseleave', () => { cursor.style.transform = 'translate(-50%,-50%) scale(1)'; ring.style.transform = 'translate(-50%,-50%) scale(1)'; ring.style.opacity = '1'; });
+  });
 
-function toggleDark() {
-document.documentElement.classList.toggle("dark")
-}
+  // ---- Scroll Reveal ----
+  const revealEls = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => io.observe(el));
 
+  // ---- Hero Parallax ----
+  const heroBg = document.getElementById('hero-bg');
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY;
+    if (heroBg) heroBg.style.transform = `translateY(${y * .35}px)`;
+  }, { passive: true });
+
+  // ---- Navbar scroll ----
+  const nav = document.querySelector('nav');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 60) { nav.style.background = 'rgba(44,26,14,.96)'; }
+    else { nav.style.background = 'rgba(44,26,14,.8)'; }
+  }, { passive: true });
+
+  // ---- Hamburger ----
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const h1 = document.getElementById('h1');
+  const h2 = document.getElementById('h2');
+  const h3 = document.getElementById('h3');
+  let menuOpen = false;
+  hamburger.addEventListener('click', () => {
+    menuOpen = !menuOpen;
+    mobileMenu.classList.toggle('hidden', !menuOpen);
+    if (menuOpen) { h1.style.transform='rotate(45deg) translate(5px,5px)'; h2.style.opacity='0'; h3.style.transform='rotate(-45deg) translate(4px,-4px)'; h3.style.width='24px'; }
+    else { h1.style.transform=''; h2.style.opacity=''; h3.style.transform=''; h3.style.width=''; }
+  });
+  document.querySelectorAll('.mobile-link').forEach(l => l.addEventListener('click', () => {
+    menuOpen = false; mobileMenu.classList.add('hidden'); h1.style.transform=''; h2.style.opacity=''; h3.style.transform=''; h3.style.width='';
+  }));
+
+  // ---- Menu Filter ----
+  function filterMenu(cat) {
+    const cards = document.querySelectorAll('#menu-grid > div');
+    const tabs  = document.querySelectorAll('.tab-btn');
+    tabs.forEach(t => { t.classList.toggle('active-tab', t.dataset.cat === cat); t.classList.toggle('bg-latte', t.dataset.cat === cat); t.classList.toggle('text-espresso', t.dataset.cat === cat); t.classList.toggle('text-steam/50', t.dataset.cat !== cat); t.classList.toggle('border-latte/20', t.dataset.cat !== cat); t.classList.toggle('border-latte', t.dataset.cat === cat); });
+    cards.forEach(c => {
+      const show = cat === 'semua' || c.dataset.cat === cat;
+      c.style.transition = 'opacity .4s, transform .4s';
+      if (show) { c.style.opacity = '1'; c.style.transform = ''; c.style.display = ''; }
+      else { c.style.opacity = '0'; c.style.transform = 'scale(.95)'; setTimeout(() => { if (!show) c.style.display = 'none'; }, 400); }
+    });
+  }
+  // Init tab style
+  filterMenu('semua');
 </script>
-
 </body>
 </html>
